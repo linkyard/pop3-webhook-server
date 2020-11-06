@@ -11,7 +11,9 @@ import (
 var user = flag.String("user", "mail", "Username that can be used to connect via POP3")
 var password = flag.String("password", "", "Password that is used to connect via POP3 (required)")
 var listenInterface = flag.String("interface", "localhost:1100", "Interface (host:port) to listen on")
-var logLevel = flag.String("log-level", "Debug", "Log level")
+var maildir = flag.String("mail-dir", "", "Directory to store the mail in (required unless --in-memory-only)")
+var inmem = flag.String("in-memory-only", "false", "Set to true to not persist the messages to disk (default: false)")
+var logLevel = flag.String("log-level", "Info", "Log level")
 
 func main() {
 	flag.Parse()
@@ -34,13 +36,25 @@ func main() {
 
 	log.Infof("Use the user '%s' to connect to %s using POP3", *user, *listenInterface)
 
-	messageProvider := backends.NewInMemoryMessageProvider()
-	messageProvider.AddMessage("11", "hi there")
+	var messageProvider backends.MessageProvider
+	if *inmem == "true" {
+		log.Warn("Will not persist the messages, using in-memory mode")
+		messageProvider = backends.NewInMemoryMessageProvider()
+	} else {
+		if len(*maildir) == 0 {
+			log.Fatal("mail-dir not set")
+		}
+		log.Infof("Will persist the messages to %s", *maildir)
+		messageProvider, err = backends.NewFilesystemMessageProvider(*maildir)
+		if err != nil {
+			log.Fatalf("could not start message provider: %s", err)
+		}
+	}
 
 	backend := backends.NewSingleUserBackend(messageProvider, *user)
-	authorizator := backends.NewSingleUserAuthenticator(*user, *password)
+	authenticator := backends.NewSingleUserAuthenticator(*user, *password)
 
-	server := popgun.NewServer(cfg, authorizator, backend)
+	server := popgun.NewServer(cfg, authenticator, backend)
 	err = server.Start()
 	if err != nil {
 		log.Fatal(err)
