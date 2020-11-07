@@ -1,3 +1,6 @@
+![Go](https://github.com/linkyard/pop3-webhook-server/workflows/Go/badge.svg)
+
+
 # POP3 Server with Webhook
 
 Simple POP3 server that gets its messages via a webhook. Single account/mailbox only.

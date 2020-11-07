@@ -33,4 +33,4 @@ jobs:
       run: go build -v ./cmd/pop3-webhook-server
 
     - name: Test
-      run: go test -v ./cmd/pop3-webhook-server
+      run: go test -v ./...
