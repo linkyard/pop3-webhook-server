@@ -97,7 +97,7 @@ func (i SingleUserBackend) List(user string) (octets []int, err error) {
 
 // Returns whether message exists and if yes, then return size of the message in bytes (octets)
 func (i SingleUserBackend) ListMessage(user string, msgId int) (exists bool, octets int, err error) {
-	log.Debugf("backend: ListMessage %s", msgId)
+	log.Debugf("backend: ListMessage %d", msgId)
 	msg, err := i.getMessage(user, msgId, false)
 	if err != nil {
 		return false, 0, err
@@ -131,7 +131,7 @@ func (i SingleUserBackend) getMessage(user string, msgId int, failIfNotFound boo
 // by List() function, so be sure to keep that order unchanged while client is connected
 // See Lock() function for more details
 func (i SingleUserBackend) Retr(user string, msgId int) (message string, err error) {
-	log.Debugf("backend: Retr %s", msgId)
+	log.Debugf("backend: Retr %d", msgId)
 	msg, err := i.getMessage(user, msgId, true)
 	if err != nil {
 		return "", nil
@@ -143,7 +143,7 @@ func (i SingleUserBackend) Retr(user string, msgId int) (message string, err err
 // Update() is called. Be aware that after Dele() is called, functions like List() etc.
 // should ignore all these messages even if Update() hasn't been called yet
 func (i SingleUserBackend) Dele(user string, msgId int) error {
-	log.Debugf("backend: Dele %s", msgId)
+	log.Debugf("backend: Dele %d", msgId)
 	msg, err := i.getMessage(user, msgId, true)
 	if err != nil {
 		return err
@@ -185,7 +185,7 @@ func (i SingleUserBackend) Uidl(user string) (uids []string, err error) {
 
 // Similar to ListMessage, but returns unique ID by message ID instead of size.
 func (i SingleUserBackend) UidlMessage(user string, msgId int) (exists bool, uid string, err error) {
-	log.Debugf("backend: UidlMessage %s", msgId)
+	log.Debugf("backend: UidlMessage %d", msgId)
 	msg, err := i.getMessage(user, msgId, false)
 	if err != nil {
 		return false, "", err
