@@ -19,7 +19,7 @@ var httpAddr = flag.String("http-interface", "localhost:8080", "The address to l
 var popAddr = flag.String("pop-interface", "localhost:1100", "Interface (host:port) to listen on")
 var maildir = flag.String("mail-dir", "", "Directory to store the mail in (required unless --in-memory-only)")
 var inmem = flag.String("in-memory-only", "false", "Set to true to not persist the messages to disk (default: false)")
-var logLevel = flag.String("log-level", "Info", "Log level")
+var logLevel = flag.String("log-level", "Info", "Log level (ERROR, WARN, INFO, DEBUG, TRACE)")
 
 func main() {
 	flag.Parse()

@@ -12,7 +12,33 @@ Can be used to connect mail-based applications to a server such as [postal](http
 * webhook to receive mail
 * simple authentication for the webhook (token)
 
-## Credit
+## Usage
+### Running
+Run by calling the executable with the following parameters (env or command line)
+- `user`: Username that can be used to connect via POP3. Default: `mail`
+- `password`: Password that is used to connect via POP3 (required)
+- `token`: Token that is required to submit via webhook (required)")
+- `http-interface`: The address to listen on for HTTP requests. Default: `localhost:8080`
+- `pop-interface`: Interface (host:port) to listen on. Default: `localhost:1100`
+- `mail-dir`: Directory to store the mail in. Required unless in-memory-only is set
+- `in-memory-only`: Set to `true` to not persist the messages to disk. Default: `false`
+- `log-level`: Log level (ERROR, WARN, INFO, DEBUG, TRACE). Default: INFO
+
+### Storing Mail
+Store the mail by calling the webhook (default is `http://localhost:8080/store`).
+
+Query Paramters:
+- `token`: set to the same value as the startup parameter (used for authentication)
+
+Body - application/json with the following fields:
+- `id` (number): ID of the message
+- `message` (string, base64 encoded): The raw content of the message
+
+### Receiving Mails
+Connect to the POP3 server at `localhost:1100` (or what you specified in pop-interface).
+Use basic authentication with the user/password you specified at startup.
+
+## Credits
 * Uses https://github.com/DevelHell/popgun/ for POP3
 
 ## LICENSE
