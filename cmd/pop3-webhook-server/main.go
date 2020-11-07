@@ -25,7 +25,7 @@ func main() {
 	flag.Parse()
 	parsedLogLevel, err := log.ParseLevel(*logLevel)
 	if err != nil {
-		log.Fatalf("invalid log level '%s' falling back to default level 'Debug'", logLevel)
+		log.Fatalf("invalid log level '%s' falling back to default level 'Debug'", *logLevel)
 		parsedLogLevel = log.DebugLevel
 	}
 	log.SetLevel(parsedLogLevel)
