@@ -1,9 +1,10 @@
-package backends
+package store
 
 import (
 	"crypto/sha1"
 	"encoding/base32"
 	"fmt"
+	"github.com/linkyard/pop3-webhook-server/internal/backends"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
@@ -21,7 +22,7 @@ type entry struct {
 }
 
 func (e entry) GetContent() (string, error) {
-	log.Tracef("getting content for message %s from %s", e.hash, e.filename)
+	log.Tracef("store: getting content for message %s from %s", e.hash, e.filename)
 	content, err := ioutil.ReadFile(e.filename)
 	if err != nil {
 		return "", err
@@ -35,7 +36,7 @@ func NewFilesystemMessageProvider(directory string) (FilesystemMessageProvider, 
 		return FilesystemMessageProvider{}, err
 	}
 	if !dir.IsDir() {
-		return FilesystemMessageProvider{}, fmt.Errorf("Not a directory: %s", directory)
+		return FilesystemMessageProvider{}, fmt.Errorf("not a directory: %s", directory)
 	}
 	return FilesystemMessageProvider{
 		directory: directory,
@@ -64,24 +65,24 @@ func (f FilesystemMessageProvider) list() (entries []entry, err error) {
 	return res, nil
 }
 
-func (f FilesystemMessageProvider) LoadMessages() (messages []Message, err error) {
-	log.Tracef("loading messages from %s", f.directory)
+func (f FilesystemMessageProvider) LoadMessages() (messages []backends.Message, err error) {
+	log.Tracef("store: loading messages from %s", f.directory)
 	entries, err := f.list()
 	if err != nil {
 		return nil, err
 	}
-	log.Debugf("found %d messages in %s", len(entries), f.directory)
-	var res []Message
+	log.Debugf("store: found %d messages in %s", len(entries), f.directory)
+	var res = make([]backends.Message, 0)
 	for _, entry := range entries {
 		content, err := entry.GetContent()
 		if err != nil {
-			log.Warnf("Could not read file %s - skipping it (%s)", entry.filename, err)
+			log.Warnf("store: could not read file %s - skipping it (%s)", entry.filename, err)
 			break
 		}
-		log.Tracef("Found message %s (%s): size %d bytes", entry.hash, entry.filename, len(content))
-		message := Message{
-			id:      entry.hash,
-			content: content,
+		log.Tracef("store: found message %s (%s): size %d bytes", entry.hash, entry.filename, len(content))
+		message := backends.Message{
+			Id:      entry.hash,
+			Content: content,
 		}
 		res = append(res, message)
 	}
@@ -92,9 +93,21 @@ func (f FilesystemMessageProvider) DeleteMessage(messageId string) (err error) {
 	entries, err := f.list()
 	for _, entry := range entries {
 		if entry.hash == messageId {
-			log.Debugf("Deleting message %s (file %s)", entry.hash, entry.filename)
+			log.Debugf("store: deleting message %s (file %s)", entry.hash, entry.filename)
 			return os.Remove(entry.filename)
 		}
 	}
 	return fmt.Errorf("%s not found", err)
+}
+
+func (f FilesystemMessageProvider) StoreMessage(id string, content string) error {
+	if len(id) == 0 {
+		return fmt.Errorf("cannot store message: no id")
+	}
+	if  len(content) == 0 {
+		return fmt.Errorf("cannot store message %s: no content", id)
+	}
+	log.Infof("store: Storing new message %s (%d bytes)", id, len(content))
+	filename := filepath.Join(f.directory, id)
+	return ioutil.WriteFile(filename, []byte(content), 0600)
 }
