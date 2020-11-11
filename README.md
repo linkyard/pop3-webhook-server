@@ -17,7 +17,7 @@ Can be used to connect mail-based applications to a server such as [postal](http
 
 ## Usage
 ### Running
-I recommend using the docker image: `docker.pkg.github.com/linkyard/pop3-webhook-server/image:latest`
+I recommend using the docker image: `ghcr.io/linkyard/pop3-webhook-server:latest` or  `eu.gcr.io/linkyard-191615/linkyard-cloud/pop3-webhook-server` (private)
 
 Run by calling the executable with the following parameters (env or command line)
 - `user`: Username that can be used to connect via POP3. Default: `mail`
