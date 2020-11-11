@@ -4,7 +4,7 @@ import (
 	"github.com/namsral/flag"
 	"github.com/DevelHell/popgun"
 	"github.com/linkyard/pop3-webhook-server/internal/backends"
-	messageProvider2 "github.com/linkyard/pop3-webhook-server/internal/store"
+	"github.com/linkyard/pop3-webhook-server/internal/store"
 	"github.com/linkyard/pop3-webhook-server/internal/webhook"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -49,7 +49,7 @@ func main() {
 	var mailStore webhook.MailStore
 	if *inmem == "true" {
 		log.Warn("Will not persist the messages, using in-memory mode")
-		store := messageProvider2.NewInMemoryMessageProvider()
+		store := store.NewInMemoryMessageProvider()
 		messageProvider = store
 		mailStore = store
 	} else {
@@ -57,7 +57,7 @@ func main() {
 			log.Fatal("mail-dir not set")
 		}
 		log.Infof("Will persist the messages to %s", *maildir)
-		store, err := messageProvider2.NewFilesystemMessageProvider(*maildir)
+		store, err := store.NewFilesystemMessageProvider(*maildir)
 		if err != nil {
 			log.Fatalf("could not start message provider: %s", err)
 		}
