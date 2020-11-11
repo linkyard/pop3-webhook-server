@@ -24,6 +24,7 @@ Run by calling the executable with the following parameters (env or command line
 - `password`: Password that is used to connect via POP3 (required)
 - `token`: Token that is required to submit via webhook (required)")
 - `http-interface`: The address to listen on for HTTP requests. Default: `localhost:8080`
+- `base-path`: The base HTTP path the webhook should run under. Default: `/`
 - `pop-interface`: Interface (host:port) to listen on. Default: `localhost:1100`
 - `mail-dir`: Directory to store the mail in. Required unless in-memory-only is set
 - `in-memory-only`: Set to `true` to not persist the messages to disk. Default: `false`

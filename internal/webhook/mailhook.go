@@ -26,10 +26,34 @@ func NewReceiveMailHandler(token string, mailStore *MailStore) ReceiveMailHandle
 	}
 }
 
-func (r ReceiveMailHandler) Handler() *mux.Router {
-	router := mux.NewRouter().StrictSlash(false)
+func (r ReceiveMailHandler) Register(router *mux.Router)  {
+	router.HandleFunc("/", jsonResponse(index))
+	router.HandleFunc("/health", jsonResponse(status))
 	router.HandleFunc("/store", jsonResponse(r.store))
-	return router
+	router.PathPrefix("/").HandlerFunc(jsonResponse(notFound))
+}
+
+func index(_ *http.Request) (interface{}, httpError) {
+	return indexResponse{Info: "Hello from pop3-webhook-server. Use POST on store to submit a message"}, nil
+}
+
+type indexResponse struct {
+	Info string `json:"info"`
+}
+
+func status(_ *http.Request) (interface{}, httpError) {
+	return statusResponse{Status: "ok"}, nil
+}
+
+type statusResponse struct {
+	Status string `json:"status"`
+}
+
+func notFound(_ *http.Request) (interface{}, httpError) {
+	return nil, clientError{
+		detail:    "not found",
+		errorCode: 404,
+	}
 }
 
 func (r ReceiveMailHandler) store(req *http.Request) (interface{}, httpError) {

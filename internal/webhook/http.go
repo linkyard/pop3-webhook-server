@@ -49,6 +49,7 @@ func jsonResponse(f func(request *http.Request) (interface{}, httpError)) func(h
 		var writeErr error
 		if err == nil {
 			log.Debugf("Request to %s was successful", req.RequestURI)
+			resp.Header().Set("Content-Type", "application/json")
 			resp.WriteHeader(200)
 			writeErr = json.NewEncoder(resp).Encode(result)
 		} else {
@@ -58,6 +59,7 @@ func jsonResponse(f func(request *http.Request) (interface{}, httpError)) func(h
 				Code:   err.ErrorCode(),
 				Detail: err.Detail(),
 			}
+			resp.Header().Set("Content-Type", "application/json")
 			resp.WriteHeader(err.ErrorCode())
 			writeErr = json.NewEncoder(resp).Encode(result)
 		}

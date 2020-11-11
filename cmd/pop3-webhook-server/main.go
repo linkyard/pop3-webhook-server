@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"github.com/namsral/flag"
 	"github.com/DevelHell/popgun"
 	"github.com/linkyard/pop3-webhook-server/internal/backends"
@@ -16,6 +17,7 @@ var user = flag.String("user", "mail", "Username that can be used to connect via
 var password = flag.String("password", "", "Password that is used to connect via POP3 (required)")
 var token = flag.String("token", "", "Token that is required to submit via webhook (required)")
 var httpAddr = flag.String("http-interface", "localhost:8080", "The address to listen on for HTTP requests.")
+var basePath = flag.String("base-path", "", "Path the http interface is available under. Default: ''")
 var popAddr = flag.String("pop-interface", "localhost:1100", "Interface (host:port) to listen on")
 var maildir = flag.String("mail-dir", "", "Directory to store the mail in (required unless --in-memory-only)")
 var inmem = flag.String("in-memory-only", "false", "Set to true to not persist the messages to disk (default: false)")
@@ -76,8 +78,10 @@ func main() {
 	}
 
 	httpHandler := webhook.NewReceiveMailHandler(*token, &mailStore)
-	log.Infof("Started http server on %s (use /mail/v1/store)", *httpAddr)
-	err = http.ListenAndServe(*httpAddr, httpHandler.Handler())
+	router := mux.NewRouter().StrictSlash(false)
+	httpHandler.Register(router.PathPrefix(*basePath).Subrouter())
+	log.Infof("Started http server on %s (use %s/store)", *httpAddr, *basePath)
+	err = http.ListenAndServe(*httpAddr, router)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
