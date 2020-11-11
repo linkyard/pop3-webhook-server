@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"
+	"github.com/namsral/flag"
 	"github.com/DevelHell/popgun"
 	"github.com/linkyard/pop3-webhook-server/internal/backends"
 	messageProvider2 "github.com/linkyard/pop3-webhook-server/internal/store"
